@@ -50,8 +50,8 @@ export default function App() {
   const dropdownRef = useRef(null);
 
   const models = [
-    { id: "img3", name: "img3" },
-    { id: "img4", name: "img4" },
+    { id: "img3", name: "imagen 3" },
+    { id: "img4", name: "imagen 4" },
     { id: "uncen", name: "uncen" },
     { id: "qwen", name: "qwen" },
     { id: "gemini2.0", name: "gemini2.0" },
@@ -87,29 +87,45 @@ export default function App() {
    * Makes the actual API call to the infip.pro image generation endpoint.
    */
   const callImageGenerationAPI = async (currentPrompt, currentModel) => {
-    const response = await fetch("http://localhost:5000/generate-image", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: currentPrompt, model: currentModel }),
-    });
-    // Input validation
-    if (!currentPrompt || !currentModel) {
-      throw new Error("Prompt and model are required");
+    if (!currentPrompt?.trim()) {
+      throw new Error("Prompt is required.");
     }
 
-    if (!response.ok) {
-      const errorBody = await response.text();
-      console.error("Backend Error Response:", errorBody);
-      throw new Error(`Backend request failed with status ${response.status}`);
-    }
+    try {
+      const response = await fetch("http://localhost:5000/generate-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: currentPrompt.trim(),
+          model: currentModel,
+        }),
+      });
 
-    const result = await response.json();
+      if (!response.ok) {
+        // Try to parse JSON error if available
+        let errorBody;
+        try {
+          errorBody = await response.json();
+        } catch {
+          errorBody = await response.text();
+        }
+        console.error("Backend Error Response:", errorBody);
+        throw new Error(
+          errorBody?.message || `Request failed with status ${response.status}`
+        );
+      }
 
-    if (result.url) {
+      const result = await response.json();
+
+      if (!result?.url) {
+        console.error("Unexpected backend response:", result);
+        throw new Error("Image URL not found in backend response.");
+      }
+
       return result.url;
-    } else {
-      console.error("Unexpected backend response:", result);
-      throw new Error("Image URL not found in backend response.");
+    } catch (error) {
+      console.error("API call failed:", error);
+      throw error; // Re-throw so UI can handle it
     }
   };
 
@@ -154,9 +170,10 @@ export default function App() {
   };
 
   return (
-    <div className="main-page bg-neutral-950 text-gray-200">
+    <div className="main-page bg-neutral-950 text-gray-200 min-h-screen">
       <GlobalStyles />
-      <div className="container mx-auto px-4 py-8 md:py-16 max-w-2xl">
+      <div className="container mx-auto px-4 py-8 md:py-16 max-w-7xl">
+        {/* Header */}
         <header className="text-center mb-10">
           <h1 className="font-raneva text-5xl md:text-6xl font-bold text-lime-400 tracking-wider">
             Image Weaver
@@ -166,7 +183,9 @@ export default function App() {
           </p>
         </header>
 
-        <main>
+        {/* Main */}
+        <main className="grid gap-8 lg:grid-cols-2">
+          {/* Left: Form */}
           <div className="bg-zinc-900/50 rounded-2xl p-6 shadow-lg backdrop-blur-sm border border-zinc-800">
             <div className="w-full mb-4">
               <label
@@ -185,6 +204,8 @@ export default function App() {
                 onChange={(e) => setPrompt(e.target.value)}
               />
             </div>
+
+            {/* Dropdown */}
             <div className="w-full mb-4 relative" ref={dropdownRef}>
               <label className="flex items-center mb-2 text-sm font-medium text-gray-300">
                 <i className="ri-list-settings-line mr-2 text-lg"></i>Choose a
@@ -195,10 +216,10 @@ export default function App() {
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="bg-zinc-800 border border-zinc-700 text-gray-200 text-sm rounded-lg focus:ring-2 focus:ring-lime-500 focus:border-lime-500 w-full p-2.5 flex justify-between items-center"
               >
-                {model}
+                {models.find((m) => m.id === model)?.name || "Select a model"}
                 <i
                   className={`ri-arrow-down-s-line transition-transform duration-200 ${
-                    isDropdownOpen ? "transform rotate-180" : ""
+                    isDropdownOpen ? "rotate-180" : ""
                   }`}
                 ></i>
               </button>
@@ -218,6 +239,8 @@ export default function App() {
                 </div>
               )}
             </div>
+
+            {/* Button */}
             <button
               onClick={handleGenerateClick}
               disabled={isLoading}
@@ -228,27 +251,33 @@ export default function App() {
             </button>
           </div>
 
-          {isLoading || error || imageUrl ? (
-            <div className="mt-8 w-full aspect-square bg-zinc-900/50 rounded-2xl flex items-center justify-center border border-zinc-800">
-              {isLoading && <div className="loader animate-spin"></div>}
-              {error && (
-                <div className="text-center text-red-400 p-4">{error}</div>
-              )}
-              {imageUrl && (
-                <img
-                  src={imageUrl}
-                  alt="Generated art"
-                  className="rounded-lg max-w-full max-h-full"
-                />
-              )}
-            </div>
-          ) : (
-            <ImagePlaceholder />
-          )}
+          {/* Right: Output */}
+          <div className="flex items-center justify-center">
+            {isLoading || error || imageUrl ? (
+              <div className="w-full aspect-square bg-zinc-900/50 rounded-2xl flex items-center justify-center border border-zinc-800">
+                {isLoading && <div className="loader animate-spin"></div>}
+                {error && (
+                  <div className="text-center text-red-400 p-4">{error}</div>
+                )}
+                {imageUrl && (
+                  <img
+                    src={imageUrl}
+                    alt="Generated art"
+                    className="rounded-lg max-w-full max-h-full"
+                  />
+                )}
+              </div>
+            ) : (
+              <ImagePlaceholder />
+            )}
+          </div>
         </main>
 
+        {/* Footer */}
         <footer className="text-center mt-12 pt-6 border-t border-zinc-800">
-          <p className="text-zinc-600 text-sm">Powered by infip.pro</p>
+          <p className="text-zinc-600 text-sm font-montserrat">
+            Powered by infip.pro
+          </p>
         </footer>
       </div>
     </div>
