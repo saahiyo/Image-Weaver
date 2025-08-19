@@ -3,33 +3,65 @@
 /* google-fonts imported */
 
 /* Montserrat */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 /* Noto Sans */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
-
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap");
 
 /* custom font family from assets*/
 @font-face {
-  font-family: 'Raneva';
-  src: url('./assets/fonts/Raneva-Bold.ttf') format('truetype');
+  font-family: "Raneva";
+  src: url("./assets/fonts/Raneva-Bold.ttf") format("truetype");
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Raneva-italic';
-  src: url('./assets/fonts/Raneva-BoldItalic.ttf') format('truetype');
+  font-family: "Raneva-italic";
+  src: url("./assets/fonts/Raneva-BoldItalic.ttf") format("truetype");
   font-style: italic;
 }
 @font-face {
-  font-family: 'Hitobito';
-  src: url('./assets/fonts/Hitobito.ttf') format('truetype');
+  font-family: "Hitobito";
+  src: url("./assets/fonts/Hitobito.ttf") format("truetype");
   font-style: normal;
 }
 
-@theme{
-  --font-raneva: 'Raneva', sans-serif;
-  --font-raneva-italic: 'Raneva-italic', sans-serif;
-  --font-hitobito: 'Hitobito', sans-serif;
-  --font-montserrat: 'Montserrat', sans-serif;
-  --font-noto-sans: 'Noto Sans', sans-serif;
+@theme {
+  --font-raneva: "Raneva", sans-serif;
+  --font-raneva-italic: "Raneva-italic", sans-serif;
+  --font-hitobito: "Hitobito", sans-serif;
+  --font-montserrat: "Montserrat", sans-serif;
+  --font-noto-sans: "Noto Sans", sans-serif;
+}
+
+.loader {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #a3e635; /* lime-400 */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+}
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a; /* dark background */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #84cc16; /* lime-500 */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #65a30d; /* lime-600 on hover */
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #84cc16 #1a1a1a;
 }

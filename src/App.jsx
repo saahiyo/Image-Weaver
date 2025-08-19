@@ -1,42 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
-
-// This component injects the global styles, including the custom font and loader animation.
-const GlobalStyles = () => (
-  <style>{`
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #a3e635; /* lime-400 */
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-        }
-    `}</style>
-);
-
-// Placeholder component for when no image has been generated yet.
-const ImagePlaceholder = () => (
-  <div className=" mt-8 w-full aspect-square bg-zinc-900/50 rounded-2xl flex items-center justify-center border border-zinc-800">
-    <div className="text-center text-zinc-500">
-      <svg
-        className="mx-auto h-12 w-12"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth="1.5"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
-        />
-      </svg>
-      <p className="mt-2 text-sm font-raneva">
-        Your generated image will appear here
-      </p>
-    </div>
-  </div>
-);
+import ImagePlaceholder from "./components/ImagePlaceholder";
+import Header from "./components/Header";
 
 // Main application component
 export default function App() {
@@ -86,48 +50,38 @@ export default function App() {
   /**
    * Makes the actual API call to the infip.pro image generation endpoint.
    */
-  const callImageGenerationAPI = async (currentPrompt, currentModel) => {
-    if (!currentPrompt?.trim()) {
-      throw new Error("Prompt is required.");
-    }
-
+const callImageGenerationAPI = async (prompt, model, timeout = 30000) => {
+  if (!prompt?.trim()) throw new Error("Prompt required");
+  const maxRetries = 3;
+  let attempt = 0;
+  while (attempt < maxRetries) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeout);
     try {
-      const response = await fetch("http://localhost:5000/generate-image", {
+      const res = await fetch(`http://localhost:5000/generate-image`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: currentPrompt.trim(),
-          model: currentModel,
-        }),
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ prompt: prompt.trim(), model }),
+        signal: controller.signal,
       });
-
-      if (!response.ok) {
-        // Try to parse JSON error if available
-        let errorBody;
-        try {
-          errorBody = await response.json();
-        } catch {
-          errorBody = await response.text();
-        }
-        console.error("Backend Error Response:", errorBody);
-        throw new Error(
-          errorBody?.message || `Request failed with status ${response.status}`
-        );
+      clearTimeout(timer);
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.message || `Status ${res.status}`);
       }
-
-      const result = await response.json();
-
-      if (!result?.url) {
-        console.error("Unexpected backend response:", result);
-        throw new Error("Image URL not found in backend response.");
-      }
-
-      return result.url;
-    } catch (error) {
-      console.error("API call failed:", error);
-      throw error; // Re-throw so UI can handle it
+      const json = await res.json();
+      if (!json?.url) throw new Error("No image returned");
+      return json.url;
+    } catch (err) {
+      clearTimeout(timer);
+      attempt++;
+      if (attempt >= maxRetries) throw err;
+      const jitter = Math.random() * 500;
+      await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000 + jitter));
     }
-  };
+  }
+};
+
 
   /**
    * Handles the form submission to generate an image, with retry logic.
@@ -170,19 +124,10 @@ export default function App() {
   };
 
   return (
-    <div className="main-page bg-neutral-950 text-gray-200 min-h-screen">
-      <GlobalStyles />
-      <div className="container mx-auto px-4 py-8 md:py-16 max-w-7xl">
+    <div className="main-page bg-neutral-950 text-gray-200 min-h-screen ">
+      <div className="container mx-auto px-4 py-8 md:py-16 max-w-7xl ">
         {/* Header */}
-        <header className="text-center mb-10">
-          <h1 className="font-raneva text-5xl md:text-6xl font-bold text-lime-400 tracking-wider">
-            Image Weaver
-          </h1>
-          <p className="font-raneva-italic text-lg md:text-xl text-gray-500 mt-2">
-            Bring your words to life
-          </p>
-        </header>
-
+        <Header />
         {/* Main */}
         <main className="grid gap-8 lg:grid-cols-2">
           {/* Left: Form */}
@@ -255,7 +200,14 @@ export default function App() {
           <div className="flex items-center justify-center">
             {isLoading || error || imageUrl ? (
               <div className="w-full aspect-square bg-zinc-900/50 rounded-2xl flex items-center justify-center border border-zinc-800">
-                {isLoading && <div className="loader animate-spin"></div>}
+                {isLoading && (
+                  <div className="loader-div flex flex-col items-center justify-center gap-2">
+                    <div className="loader animate-spin"></div>
+                    <p className="text-gray-500 mt-2">
+                      Generating your image...
+                    </p>
+                  </div>
+                )}
                 {error && (
                   <div className="text-center text-red-400 p-4">{error}</div>
                 )}
