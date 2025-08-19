@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+/* my custom font family */
+@font-face {
+  font-family: 'Raneva';
+  src: url('./assets/fonts/Raneva-Bold.ttf') format('truetype');
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Raneva-italic';
+  src: url('./assets/fonts/Raneva-BoldItalic.ttf') format('truetype');
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Hitobito';
+  src: url('./assets/fonts/Hitobito.ttf') format('truetype');
+  font-style: normal;
+}
+
+@theme{
+  --font-raneva: 'Raneva', sans-serif;
+  --font-raneva-italic: 'Raneva-italic', sans-serif;
+  --font-hitobito: 'Hitobito', sans-serif;
+
+}
