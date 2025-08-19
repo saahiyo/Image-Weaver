@@ -1,6 +1,14 @@
 @import "tailwindcss";
 
-/* my custom font family */
+/* google-fonts imported */
+
+/* Montserrat */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+/* Noto Sans */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
+
+/* custom font family from assets*/
 @font-face {
   font-family: 'Raneva';
   src: url('./assets/fonts/Raneva-Bold.ttf') format('truetype');
@@ -22,5 +30,6 @@
   --font-raneva: 'Raneva', sans-serif;
   --font-raneva-italic: 'Raneva-italic', sans-serif;
   --font-hitobito: 'Hitobito', sans-serif;
-
+  --font-montserrat: 'Montserrat', sans-serif;
+  --font-noto-sans: 'Noto Sans', sans-serif;
 }
