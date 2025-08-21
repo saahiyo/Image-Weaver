@@ -227,8 +227,8 @@ const callImageGenerationAPI = async (prompt, model, timeout = 30000) => {
 
         {/* Footer */}
         <footer className="text-center mt-12 pt-6 border-t border-zinc-800">
-          <p className="text-zinc-600 text-sm font-montserrat">
-            Powered by infip.pro
+          <p  className="text-zinc-600 text-sm font-montserrat">
+            Powered by <a href="https://infip.pro/" target="_blank" rel="noopener noreferrer" className="text-lime-700 hover:text-lime-400 hover:underline">Infip Pro</a>
           </p>
         </footer>
       </div>
