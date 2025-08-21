@@ -2,7 +2,7 @@ import React from 'react'
 
 const ImagePlaceholder = () => {
   return (
-      <div className=" mt-8 w-full aspect-square bg-zinc-900/50 rounded-2xl flex items-center justify-center border border-zinc-800">
+      <div className=" mt-8 w-full h-full aspect-square bg-zinc-900/50 rounded-2xl flex items-center justify-center border border-zinc-800">
         <div className="text-center text-zinc-500">
           <svg
             className="mx-auto h-12 w-12"

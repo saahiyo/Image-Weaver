@@ -131,7 +131,7 @@ const callImageGenerationAPI = async (prompt, model, timeout = 30000) => {
         {/* Main */}
         <main className="grid gap-8 lg:grid-cols-2">
           {/* Left: Form */}
-          <div className="bg-zinc-900/50 rounded-2xl p-6 shadow-lg backdrop-blur-sm border border-zinc-800">
+          <div className="bg-zinc-900/50 rounded-2xl p-6 shadow-lg backdrop-blur-sm border border-zinc-800 h-full">
             <div className="w-full mb-4">
               <label
                 htmlFor="prompt-input"
@@ -143,11 +143,13 @@ const callImageGenerationAPI = async (prompt, model, timeout = 30000) => {
               <textarea
                 id="prompt-input"
                 rows="4"
+                maxLength={200}
                 className="block p-2.5 w-full text-sm text-gray-200 bg-zinc-800 rounded-lg border border-zinc-700 focus:ring-lime-500 focus:border-lime-500 placeholder-zinc-500"
                 placeholder="e.g., A majestic lion in a field of wildflowers"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
               />
+              <div className="text-right text-xs text-gray-400 mt-1">{prompt.length}/200</div>
             </div>
 
             {/* Dropdown */}
@@ -197,7 +199,7 @@ const callImageGenerationAPI = async (prompt, model, timeout = 30000) => {
           </div>
 
           {/* Right: Output */}
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center h-full">
             {isLoading || error || imageUrl ? (
               <div className="w-full aspect-square bg-zinc-900/50 rounded-2xl flex items-center justify-center border border-zinc-800">
                 {isLoading && (
