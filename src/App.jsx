@@ -50,38 +50,39 @@ export default function App() {
   /**
    * Makes the actual API call to the infip.pro image generation endpoint.
    */
-const callImageGenerationAPI = async (prompt, model, timeout = 30000) => {
-  if (!prompt?.trim()) throw new Error("Prompt required");
-  const maxRetries = 3;
-  let attempt = 0;
-  while (attempt < maxRetries) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeout);
-    try {
-      const res = await fetch(`http://localhost:5000/generate-image`, {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({ prompt: prompt.trim(), model }),
-        signal: controller.signal,
-      });
-      clearTimeout(timer);
-      if (!res.ok) {
-        const body = await res.json().catch(() => null);
-        throw new Error(body?.message || `Status ${res.status}`);
+  const callImageGenerationAPI = async (prompt, model, timeout = 30000) => {
+    if (!prompt?.trim()) throw new Error("Prompt required");
+    const maxRetries = 3;
+    let attempt = 0;
+    while (attempt < maxRetries) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeout);
+      try {
+        const res = await fetch(`http://localhost:5000/generate-image`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: prompt.trim(), model }),
+          signal: controller.signal,
+        });
+        clearTimeout(timer);
+        if (!res.ok) {
+          const body = await res.json().catch(() => null);
+          throw new Error(body?.message || `Status ${res.status}`);
+        }
+        const json = await res.json();
+        if (!json?.url) throw new Error("No image returned");
+        return json.url;
+      } catch (err) {
+        clearTimeout(timer);
+        attempt++;
+        if (attempt >= maxRetries) throw err;
+        const jitter = Math.random() * 500;
+        await new Promise((r) =>
+          setTimeout(r, Math.pow(2, attempt) * 1000 + jitter)
+        );
       }
-      const json = await res.json();
-      if (!json?.url) throw new Error("No image returned");
-      return json.url;
-    } catch (err) {
-      clearTimeout(timer);
-      attempt++;
-      if (attempt >= maxRetries) throw err;
-      const jitter = Math.random() * 500;
-      await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000 + jitter));
     }
-  }
-};
-
+  };
 
   /**
    * Handles the form submission to generate an image, with retry logic.
@@ -124,7 +125,7 @@ const callImageGenerationAPI = async (prompt, model, timeout = 30000) => {
   };
 
   return (
-    <div className="main-page bg-neutral-950 text-gray-200 min-h-screen ">
+    <div className="main-page bg-neutral-950 text-gray-200 min-h-screen">
       <div className="container mx-auto px-4 py-8 md:py-16 max-w-7xl ">
         {/* Header */}
         <Header />
@@ -149,7 +150,9 @@ const callImageGenerationAPI = async (prompt, model, timeout = 30000) => {
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
               />
-              <div className="text-right text-xs text-gray-400 mt-1">{prompt.length}/200</div>
+              <div className="text-right text-xs text-gray-400 mt-1">
+                {prompt.length}/200
+              </div>
             </div>
 
             {/* Dropdown */}
@@ -188,14 +191,14 @@ const callImageGenerationAPI = async (prompt, model, timeout = 30000) => {
             </div>
 
             {/* Button */}
-            <button
-              onClick={handleGenerateClick}
-              disabled={isLoading}
-              className="w-full inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-black bg-lime-400 rounded-lg hover:bg-lime-500 focus:ring-4 focus:ring-lime-300/50 transition-all duration-300 disabled:bg-zinc-500 disabled:cursor-not-allowed"
-            >
-              <i className="ri-magic-line mr-2"></i>
-              {isLoading ? "Generating..." : "Generate Image"}
-            </button>
+              <button
+                onClick={handleGenerateClick}
+                disabled={isLoading}
+                className="w-full inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-black bg-lime-400 rounded-lg hover:bg-lime-500 focus:ring-4 focus:ring-lime-300/50 transition-all duration-300 disabled:bg-zinc-500 disabled:cursor-not-allowed"
+              >
+                <i className="ri-magic-line mr-2"></i>
+                {isLoading ? "Generating..." : "Generate Image"}
+              </button>
           </div>
 
           {/* Right: Output */}
@@ -229,8 +232,16 @@ const callImageGenerationAPI = async (prompt, model, timeout = 30000) => {
 
         {/* Footer */}
         <footer className="text-center mt-12 pt-6 border-t border-zinc-800">
-          <p  className="text-zinc-600 text-sm font-montserrat">
-            Powered by <a href="https://infip.pro/" target="_blank" rel="noopener noreferrer" className="text-lime-700 hover:text-lime-400 hover:underline">Infip Pro</a>
+          <p className="text-zinc-600 text-sm font-montserrat">
+            Powered by{" "}
+            <a
+              href="https://infip.pro/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-lime-700 hover:text-lime-400 hover:underline"
+            >
+              Infip Pro
+            </a>
           </p>
         </footer>
       </div>

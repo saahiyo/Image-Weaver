@@ -1,8 +1,15 @@
-import React from 'react'
+import React from "react";
+import Magnet from "../blocks/Animations/Magnet/Magnet.jsx";
 
 const ImagePlaceholder = () => {
   return (
-      <div className=" mt-8 w-full h-full aspect-square bg-zinc-900/50 rounded-2xl flex items-center justify-center border border-zinc-800">
+    <div className=" mt-8 w-full h-full aspect-square bg-zinc-900/50 rounded-2xl flex items-center justify-center border border-zinc-800">
+      <Magnet
+        padding={80}
+        disabled={false}
+        magnetStrength={8}
+        innerClassName="flex items-center justify-center"
+      >
         <div className="text-center text-zinc-500">
           <svg
             className="mx-auto h-12 w-12"
@@ -22,8 +29,9 @@ const ImagePlaceholder = () => {
             Your generated image will appear here
           </p>
         </div>
-      </div>
-  )
-}
+      </Magnet>
+    </div>
+  );
+};
 
-export default ImagePlaceholder
+export default ImagePlaceholder;

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 
+
 const NAV_ITEMS = [
   { href: "/gallery", icon: "ri-gallery-line", label: "Gallery" },
   { href: "/profile", icon: "ri-user-line", label: "Profile" },
